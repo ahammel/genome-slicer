@@ -31,7 +31,7 @@ Bones {
   name         'genome-slicer'
   authors      'Alex Hammel'
   email        'ahammel87@gmail.com'
-  url          'FIXME (project homepage)'
+  url          'https://github.com/ahammel/genome-slicer'
   ignore_file  '.gitignore'
 }
 
