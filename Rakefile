@@ -22,7 +22,7 @@ Reek::Rake::Task.new do |t|
   t.fail_on_error = false
 end
 
-task 'test:run' => %w[reek spec]
+task 'test:run' => %w[spec reek]
 
 task :default => %w[test:run]
 task 'gem:release' => %w[test:run]
