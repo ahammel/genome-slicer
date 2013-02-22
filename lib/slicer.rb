@@ -1,9 +1,6 @@
 require File.expand_path('../subsequence', __FILE__)
+require File.expand_path('../locus_description', __FILE__)
 require 'csv'
-
-POSITIVE_STRAND_TOKENS = ["1", "+"]
-NEGATIVE_STRAND_TOKENS = ["-1", "-"]
-
 
 # = DESCRIPTION
 # A Slicer object combines a Bio::FlatFile with a set of specifications of
@@ -23,30 +20,20 @@ NEGATIVE_STRAND_TOKENS = ["-1", "-"]
 #    puts slicer.to_fasta
 #
 class Slicer
-  attr_reader :genome, :loci
-
   def initialize(genome_file, loci_file)
     sequences = Bio::FlatFile.auto(genome_file)
     @genome = Hash[ sequences.map { |entry| [entry.entry_id, entry.naseq] } ]
-    @loci = CSV.read(loci_file).map do |name, target, strand, start, stop|
-      [
-        name,
-        target,
-        strand,
-        start.to_i - 1, # This arithmetic gives inclusive, 
-        stop.to_i,      # one-indexed slices
-      ]
-    end
+    @loci = LocusDescription.new(loci_file)
   end
 
   # Returns an array of loci extracted from the +@genome+
   def sliced_loci
     @loci.map do |slice|
-      name, target, strand, start, stop = slice
+      name, target, strand, start, stop = slice.values
       target_sequence = @genome.fetch(target)
-      if POSITIVE_STRAND_TOKENS.include?(strand) 
+      if strand == :forward
         target_sequence.subsequence(name, start, stop)
-      elsif NEGATIVE_STRAND_TOKENS.include?(strand )
+      elsif strand == :reverse
         target_sequence.reversed_subsequence(name, start, stop)
       end
     end

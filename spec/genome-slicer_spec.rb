@@ -28,6 +28,51 @@ describe GenomeSlicer do
     end
   end
 
+  describe LocusDescription do
+    before :each do
+      @desc = LocusDescription.new(relative_path("test_loci.csv"))
+      @first_locus, @second_locus = @desc.to_a
+    end
+    
+    it "is an Enumerable of hashes with the keys :name, :target, :strand, " <<
+       ":start, and :stop, in that order" do
+      @desc.should be_kind_of(Enumerable)
+      keys = [:name, :target, :strand, :start, :stop] 
+      @first_locus.keys.should eq keys
+      @second_locus.keys.should eq keys
+    end
+
+    describe ".new" do
+      context "with one argument" do
+        it "creates a set of locus specs with default column values" do
+          @first_locus[:name].should eq "locus_1"
+          @first_locus[:target].should eq "chr1"
+          @first_locus[:strand].should eq :forward
+          @first_locus[:start].should eq 1
+          @first_locus[:stop].should eq 5
+          @second_locus[:name].should eq "locus_2"
+          @second_locus[:target].should eq "chr2"
+          @second_locus[:strand].should eq :reverse
+          @second_locus[:start].should eq 4
+          @second_locus[:stop].should eq 8
+        end
+      end
+
+      context "with an optional, second Hash argument" do
+        it "uses the columns specified in the Hash instead of the defaults" do
+          column_hash = { :name => 1, :target => 0 }
+          other_desc = LocusDescription.new(relative_path("test_loci.csv"),
+                                            column_hash)
+          first_locus, second_locus = other_desc.to_a
+          first_locus[:name].should eq "chr1"
+          first_locus[:target].should eq "locus_1"
+          second_locus[:name].should eq "chr2"
+          second_locus[:target].should eq "locus_2"
+        end
+      end
+    end
+  end
+
   describe Slicer do
     before :each do
       @slicer = Slicer.new(relative_path("test.fa"), 
@@ -37,29 +82,13 @@ describe GenomeSlicer do
       end
     end
 
-    describe "#genome" do
-      it "is a hash relating the entry ids and sequences of the genome file" do
-        @slicer.genome.fetch("chr1").upcase.should eq "AACCGGTT"
-        @slicer.genome.fetch("chr2").upcase.should eq "TTGGCCAA"
-      end
-    end
-
-    describe "#loci" do
-      it "is an array of arrays of locus data" do
-        first_locus, second_locus = @slicer.loci
-        name, target, strand, start, stop = first_locus
-        name.should eq "locus_1"
-        target.should eq "chr1"
-        strand.should eq "1"
-        start.should eq 1
-        stop.should eq 5
-
-        name, target, strand, start, stop = second_locus
-        name.should eq "locus_2"
-        target.should eq "chr2"
-        strand.should eq "-1"
-        start.should eq 4
-        stop.should eq 8
+    describe "#sliced_loci" do
+      it "returns an array of sequence objects sliced from the genome" do
+        first_seq, second_seq = @slicer.sliced_loci
+        first_seq[:name] = "locus_1"
+        first_seq[:sequence] = Bio::Sequence::NA.new("accgg")
+        second_seq[:name] = "locus_2"
+        second_seq[:sequence] = Bio::Sequence::NA.new("ttgg")
       end
     end
 
