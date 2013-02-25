@@ -3,13 +3,16 @@ require File.expand_path('../locus_description', __FILE__)
 require 'csv'
 
 # = DESCRIPTION
-# A Slicer object combines a Bio::FlatFile with a set of specifications of
-# loci. The #sliced_loci method returns an array of Bio::Sequence::NA objects
-# 'sliced out' of the genome according to the locus specifications.
+# A Slicer object combines a Bio::FlatFile with a LocusDescription object. The
+# #sliced_loci method returns an array of Bio::Sequence::NA objects 'sliced
+# out' of the genome according to the locus specifications.
+#
+# 
 #
 #  = USAGE
 #    #Create a new slicer object
-#    slicer = Slicer.new("genome.fa", "loci.csv")
+#    description = LocusDescription.new("loci.csv")
+#    slicer = Slicer.new("genome.fa", description)
 #
 #    #Do something with the sliced loci
 #    slicer.sliced_loci.each do |locus|
@@ -20,10 +23,10 @@ require 'csv'
 #    puts slicer.to_fasta
 #
 class Slicer
-  def initialize(genome_file, loci_file)
+  def initialize(genome_file, locus_description)
     sequences = Bio::FlatFile.auto(genome_file)
     @genome = Hash[ sequences.map { |entry| [entry.entry_id, entry.naseq] } ]
-    @loci = LocusDescription.new(loci_file)
+    @loci = locus_description
   end
 
   # Returns an array of loci extracted from the +@genome+

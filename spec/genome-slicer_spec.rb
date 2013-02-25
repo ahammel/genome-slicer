@@ -76,7 +76,7 @@ describe GenomeSlicer do
   describe Slicer do
     before :each do
       @slicer = Slicer.new(relative_path("test.fa"), 
-                           relative_path("test_loci.csv"))
+                           LocusDescription.new(relative_path("test_loci.csv")))
       File.open(relative_path("test_loci.fa"), "r") do |io|
         @test_fasta = io.read
       end
