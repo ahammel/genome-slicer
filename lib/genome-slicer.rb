@@ -1,3 +1,6 @@
+require 'locus_description'
+require 'slicer'
+
 
 module GenomeSlicer
 
@@ -56,5 +59,4 @@ module GenomeSlicer
 
 end  # module GenomeSlicer
 
-GenomeSlicer.require_all_libs_relative_to('lib')
-
+GenomeSlicer.require_all_libs_relative_to(__FILE__)
